@@ -1,4 +1,4 @@
-const memeFiles = import.meta.glob('../assets/memes/*', { eager: true })
+const memeFiles = import.meta.glob('../assets/memes/*.{png,jpg,jpeg,gif,webp,svg}', { eager: true })
 
 function getMemesByType(type) {
   return Object.entries(memeFiles)

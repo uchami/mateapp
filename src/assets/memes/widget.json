@@ -1,0 +1,79 @@
+{
+  "timeSeriesTable": {
+    "dataSets": [
+      {
+        "timeSeriesQuery": {
+          "timeSeriesFilter": {
+            "filter": "metric.type=\"kubernetes.io/container/memory/request_bytes\" resource.type=\"k8s_container\"",
+            "aggregation": {
+              "perSeriesAligner": "ALIGN_MEAN",
+              "crossSeriesReducer": "REDUCE_MEAN",
+              "groupByFields": [
+                "resource.label.\"namespace_name\"",
+                "resource.label.\"pod_name\"",
+                "resource.label.\"container_name\""
+              ],
+              "alignmentPeriod": "60s"
+            }
+          },
+          "outputFullDuration": true
+        },
+        "minAlignmentPeriod": "60s"
+      },
+      {
+        "timeSeriesQuery": {
+          "timeSeriesFilter": {
+            "filter": "metric.type=\"kubernetes.io/container/memory/used_bytes\" resource.type=\"k8s_container\"",
+            "aggregation": {
+              "perSeriesAligner": "ALIGN_MAX",
+              "crossSeriesReducer": "REDUCE_MAX",
+              "groupByFields": [
+                "resource.label.\"namespace_name\"",
+                "resource.label.\"pod_name\"",
+                "resource.label.\"container_name\""
+              ],
+              "alignmentPeriod": "60s"
+            }
+          },
+          "outputFullDuration": true
+        },
+        "minAlignmentPeriod": "60s"
+      }
+    ],
+    "metricVisualization": "NUMBER",
+    "columnSettings": [
+      {
+        "column": "namespace_name",
+        "visible": true,
+        "alignment": "CELL_ALIGNMENT_UNSPECIFIED"
+      },
+      {
+        "column": "pod_name",
+        "visible": true,
+        "alignment": "CELL_ALIGNMENT_UNSPECIFIED"
+      },
+      {
+        "column": "container_name",
+        "visible": true,
+        "alignment": "CELL_ALIGNMENT_UNSPECIFIED"
+      },
+      {
+        "column": "project_id",
+        "visible": true,
+        "alignment": "CELL_ALIGNMENT_UNSPECIFIED"
+      },
+      {
+        "column": "value",
+        "visible": true,
+        "displayName": "Memoria Solicitada (Costo)",
+        "alignment": "CELL_ALIGNMENT_UNSPECIFIED"
+      },
+      {
+        "column": "value-1",
+        "visible": true,
+        "displayName": "Pico Máximo de Uso",
+        "alignment": "CELL_ALIGNMENT_UNSPECIFIED"
+      }
+    ]
+  }
+}

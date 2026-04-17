@@ -1,6 +1,6 @@
 export default function ChocolateShape({ parts, selected = [], onToggle, mode = 'display' }) {
-  const cols = parts <= 4 ? parts : Math.ceil(parts / 2)
-  const rows = parts <= 4 ? 1 : 2
+  const cols = parts
+  const rows = 1
   const cellW = 40
   const cellH = 50
   const gap = 2

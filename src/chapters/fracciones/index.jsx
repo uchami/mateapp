@@ -1,29 +1,35 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { exercises } from './exercises'
 import FraccionesExercise from './FraccionesExercise'
 
-export default function FraccionesChapter() {
+export default function FraccionesChapter({ mode }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const testMode = searchParams.get('test') === 'true'
 
+  const filtered = useMemo(() => {
+    if (mode === 'sumas') return exercises.filter((e) => e.operation === '+')
+    if (mode === 'restas') return exercises.filter((e) => e.operation === '-')
+    return exercises
+  }, [mode])
+
   function handleNext() {
-    if (currentIndex < exercises.length - 1) {
+    if (currentIndex < filtered.length - 1) {
       setCurrentIndex((i) => i + 1)
     } else {
-      navigate('/')
+      navigate('/fracciones')
     }
   }
 
-  const exercise = exercises[currentIndex]
+  const exercise = filtered[currentIndex]
 
   return (
     <div key={exercise.id}>
       <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-10">
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/fracciones')}
           className="text-gray-500 hover:text-gray-700 text-sm font-medium"
         >
           ← Volver
@@ -42,8 +48,8 @@ export default function FraccionesChapter() {
               TEST
             </span>
             <button
-              onClick={() => setCurrentIndex((i) => Math.min(exercises.length - 1, i + 1))}
-              disabled={currentIndex === exercises.length - 1}
+              onClick={() => setCurrentIndex((i) => Math.min(filtered.length - 1, i + 1))}
+              disabled={currentIndex === filtered.length - 1}
               className="px-2 py-1 bg-gray-800 text-white rounded text-xs disabled:opacity-30"
             >
               →
@@ -52,7 +58,7 @@ export default function FraccionesChapter() {
         )}
 
         <span className="text-sm text-gray-400">
-          {currentIndex + 1} / {exercises.length}
+          {currentIndex + 1} / {filtered.length}
         </span>
       </div>
 
