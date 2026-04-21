@@ -1,7 +1,8 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import FractionShape from '../../components/FractionShape'
 import SuccessOverlay from '../../components/SuccessOverlay'
+import { useLang } from '../../i18n/LanguageContext'
 
 function generateProblem() {
   const shapes = ['pizza', 'chocolate']
@@ -15,6 +16,7 @@ function generateProblem() {
 
 export default function IdentificarFraccion() {
   const navigate = useNavigate()
+  const { t } = useLang()
   const [problem, setProblem] = useState(generateProblem)
   const [step, setStep] = useState(1)
   const [units, setUnits] = useState(null)
@@ -52,6 +54,14 @@ export default function IdentificarFraccion() {
     })
   }
 
+  function handleSetSelected(shapeIndex, newSelected) {
+    setSelections((prev) => {
+      const next = prev.map((s) => [...s])
+      next[shapeIndex] = newSelected
+      return next
+    })
+  }
+
   function handleVerify() {
     const totalSelected = selections.reduce((sum, s) => sum + s.length, 0)
     const correctParts = parts === denominator
@@ -82,11 +92,11 @@ export default function IdentificarFraccion() {
           onClick={() => navigate('/fracciones')}
           className="text-gray-500 hover:text-gray-700 text-sm font-medium"
         >
-          ← Volver
+          {t.back}
         </button>
       </div>
 
-      <h2 className="text-2xl font-bold text-gray-700 mb-2 mt-10">Identificá la fracción</h2>
+      <h2 className="text-2xl font-bold text-gray-700 mb-2 mt-10">{t.identificar.title}</h2>
 
       {/* Fraction to represent */}
       <div className="bg-white rounded-2xl shadow-lg px-8 py-4 mb-6 flex items-center gap-3">
@@ -109,14 +119,14 @@ export default function IdentificarFraccion() {
           {/* Step 1 */}
           <div className={`bg-white rounded-xl shadow p-4 ${step >= 1 ? '' : 'opacity-40'}`}>
             <p className="text-sm font-semibold text-gray-600 mb-2">
-              1. ¿Cuántas {shape === 'pizza' ? 'pizzas' : 'barras de chocolate'} necesitás?
+              {t.identificar.q1(shape)}
             </p>
             <select
               value={units ?? ''}
               onChange={(e) => handleUnitsChange(e.target.value)}
               className="w-full border rounded-lg px-3 py-2 text-gray-700"
             >
-              <option value="" disabled>Elegí...</option>
+              <option value="" disabled>{t.identificar.choose}</option>
               {[1, 2, 3, 4].map((n) => (
                 <option key={n} value={n}>{n}</option>
               ))}
@@ -126,7 +136,7 @@ export default function IdentificarFraccion() {
           {/* Step 2 */}
           <div className={`bg-white rounded-xl shadow p-4 ${step >= 2 ? '' : 'opacity-40 pointer-events-none'}`}>
             <p className="text-sm font-semibold text-gray-600 mb-2">
-              2. ¿En cuántas partes hay que partir {shape === 'pizza' ? 'la pizza' : 'el chocolate'}?
+              {t.identificar.q2(shape)}
             </p>
             <select
               value={parts ?? ''}
@@ -134,7 +144,7 @@ export default function IdentificarFraccion() {
               className="w-full border rounded-lg px-3 py-2 text-gray-700"
               disabled={step < 2}
             >
-              <option value="" disabled>Elegí...</option>
+              <option value="" disabled>{t.identificar.choose}</option>
               {Array.from({ length: 19 }, (_, i) => i + 2).map((n) => (
                 <option key={n} value={n}>{n}</option>
               ))}
@@ -144,10 +154,10 @@ export default function IdentificarFraccion() {
           {/* Step 3 */}
           <div className={`bg-white rounded-xl shadow p-4 ${step >= 3 ? '' : 'opacity-40 pointer-events-none'}`}>
             <p className="text-sm font-semibold text-gray-600 mb-2">
-              3. Seleccioná <span className="text-violet-600 font-bold">{numerator}</span> porciones en {shape === 'pizza' ? 'las pizzas' : 'los chocolates'}
+              {t.identificar.q3(numerator, shape)}
             </p>
             <p className="text-xs text-gray-400">
-              Seleccionadas: {totalSelected} / {numerator}
+              {t.identificar.selected(totalSelected, numerator)}
             </p>
           </div>
 
@@ -157,7 +167,7 @@ export default function IdentificarFraccion() {
               className="px-6 py-3 bg-violet-500 text-white font-semibold rounded-xl
                          hover:bg-violet-600 transition-all hover:scale-105 text-lg"
             >
-              Verificar
+              {t.identificar.verify}
             </button>
           )}
         </div>
@@ -171,6 +181,7 @@ export default function IdentificarFraccion() {
                 parts={parts ?? 1}
                 selected={step >= 3 ? (selections[i] || []) : []}
                 onToggle={step >= 3 ? (partIdx) => handleToggle(i, partIdx) : undefined}
+                onSetSelected={step >= 3 ? (newSel) => handleSetSelected(i, newSel) : undefined}
                 mode={step >= 3 ? 'interactive' : 'display'}
               />
               {step >= 3 && (

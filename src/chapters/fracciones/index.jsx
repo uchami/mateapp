@@ -2,12 +2,14 @@ import { useState, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { exercises } from './exercises'
 import FraccionesExercise from './FraccionesExercise'
+import { useLang } from '../../i18n/LanguageContext'
 
 export default function FraccionesChapter({ mode }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const testMode = searchParams.get('test') === 'true'
+  const { t } = useLang()
 
   const filtered = useMemo(() => {
     if (mode === 'sumas') return exercises.filter((e) => e.operation === '+')
@@ -32,7 +34,7 @@ export default function FraccionesChapter({ mode }) {
           onClick={() => navigate('/fracciones')}
           className="text-gray-500 hover:text-gray-700 text-sm font-medium"
         >
-          ← Volver
+          {t.back}
         </button>
 
         {testMode && (

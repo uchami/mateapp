@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { getRandomMeme } from '../utils/memes'
+import { useLang } from '../i18n/LanguageContext'
 
 export default function SuccessOverlay({ isCorrect, onNext, onRetry }) {
   const [memeUrl, setMemeUrl] = useState(null)
+  const { t } = useLang()
 
   useEffect(() => {
     const type = isCorrect ? 'correcta' : 'incorrecta'
@@ -19,7 +21,7 @@ export default function SuccessOverlay({ isCorrect, onNext, onRetry }) {
           {isCorrect ? '🎉' : '😅'}
         </div>
         <h2 className="text-2xl font-bold mb-2">
-          {isCorrect ? '¡Correcto!' : '¡Casi! Intentá de nuevo'}
+          {isCorrect ? t.overlay.correct : t.overlay.incorrect}
         </h2>
 
         {memeUrl && (
@@ -38,7 +40,7 @@ export default function SuccessOverlay({ isCorrect, onNext, onRetry }) {
               : 'bg-orange-500 hover:bg-orange-600'
           }`}
         >
-          {isCorrect ? 'Siguiente →' : 'Reintentar'}
+          {isCorrect ? t.overlay.next : t.overlay.retry}
         </button>
       </div>
     </div>

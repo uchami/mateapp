@@ -1,23 +1,25 @@
 import { Link } from 'react-router-dom'
-
-const chapters = [
-  {
-    id: 'fracciones',
-    title: 'Fracciones',
-    emoji: '🍕',
-    description: 'Sumá fracciones con pizzas y chocolates',
-    color: 'from-amber-400 to-orange-500',
-  },
-]
+import { useLang } from '../i18n/LanguageContext'
 
 export default function HomeScreen() {
+  const { t } = useLang()
+  const chapters = [
+    {
+      id: 'fracciones',
+      title: t.chapters.fracciones,
+      emoji: '🍕',
+      description: t.chapters.fraccionesDesc,
+      color: 'from-amber-400 to-orange-500',
+    },
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100 p-6">
       <header className="text-center mb-10 pt-8">
         <h1 className="text-4xl md:text-5xl font-bold text-gray-800">
-          MateApp
+          {t.appTitle}
         </h1>
-        <p className="text-lg text-gray-500 mt-2">Matemáticas interactivas</p>
+        <p className="text-lg text-gray-500 mt-2">{t.appSubtitle}</p>
       </header>
 
       <div className="max-w-md mx-auto grid gap-4">

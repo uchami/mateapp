@@ -1,38 +1,40 @@
 import { Link, useNavigate } from 'react-router-dom'
-
-const submenus = [
-  {
-    id: 'sumas',
-    title: 'Sumas',
-    emoji: '➕',
-    description: 'Sumá fracciones con pizzas y chocolates',
-    color: 'from-green-400 to-emerald-500',
-  },
-  {
-    id: 'restas',
-    title: 'Restas',
-    emoji: '➖',
-    description: 'Restá fracciones con pizzas y chocolates',
-    color: 'from-red-400 to-rose-500',
-  },
-  {
-    id: 'identificar',
-    title: 'Identificar la fracción',
-    emoji: '🔍',
-    description: 'Dibujá la fracción que te piden paso a paso',
-    color: 'from-purple-400 to-violet-500',
-  },
-  {
-    id: 'explicacion',
-    title: 'Explicación',
-    emoji: '📖',
-    description: 'Herramienta para explicar fracciones en clase',
-    color: 'from-sky-400 to-blue-500',
-  },
-]
+import { useLang } from '../../i18n/LanguageContext'
 
 export default function FraccionesMenu() {
   const navigate = useNavigate()
+  const { t } = useLang()
+
+  const submenus = [
+    {
+      id: 'sumas',
+      title: t.fraccionesMenu.sumas,
+      emoji: '➕',
+      description: t.fraccionesMenu.sumasDesc,
+      color: 'from-green-400 to-emerald-500',
+    },
+    {
+      id: 'restas',
+      title: t.fraccionesMenu.restas,
+      emoji: '➖',
+      description: t.fraccionesMenu.restasDesc,
+      color: 'from-red-400 to-rose-500',
+    },
+    {
+      id: 'identificar',
+      title: t.fraccionesMenu.identificar,
+      emoji: '🔍',
+      description: t.fraccionesMenu.identificarDesc,
+      color: 'from-purple-400 to-violet-500',
+    },
+    {
+      id: 'explicacion',
+      title: t.fraccionesMenu.explicacion,
+      emoji: '📖',
+      description: t.fraccionesMenu.explicacionDesc,
+      color: 'from-sky-400 to-blue-500',
+    },
+  ]
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100 p-6">
@@ -41,14 +43,14 @@ export default function FraccionesMenu() {
           onClick={() => navigate('/')}
           className="text-gray-500 hover:text-gray-700 text-sm font-medium"
         >
-          ← Volver
+          {t.back}
         </button>
       </div>
 
       <header className="text-center mb-10 pt-8">
         <span className="text-5xl block mb-3">🍕</span>
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-800">Fracciones</h1>
-        <p className="text-lg text-gray-500 mt-2">Elegí una actividad</p>
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-800">{t.chapters.fracciones}</h1>
+        <p className="text-lg text-gray-500 mt-2">{t.fraccionesMenu.pickActivity}</p>
       </header>
 
       <div className="max-w-md mx-auto grid gap-4">
