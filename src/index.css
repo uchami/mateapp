@@ -33,3 +33,52 @@ body {
 .animate-shake {
   animation: shake 0.3s ease-in-out;
 }
+
+@keyframes feather-fall {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--drift, 0px), 240px) rotate(calc(720deg * var(--rotate-dir, 1)));
+    opacity: 0;
+  }
+}
+
+.animate-feather-fall {
+  animation: feather-fall 1.8s ease-in forwards;
+}
+
+@keyframes feather-fall-screen {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--drift, 0px), 110vh) rotate(calc(720deg * var(--rotate-dir, 1)));
+    opacity: 0.7;
+  }
+}
+
+.animate-feather-fall-screen {
+  animation: feather-fall-screen ease-in forwards;
+}
+
+@keyframes victory-bounce {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+.animate-victory-bounce {
+  animation: victory-bounce 0.6s ease-in-out infinite;
+}
+
+@keyframes vibrate {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+  20%, 40%, 60%, 80% { transform: translateX(3px); }
+}
+
+.animate-vibrate {
+  animation: vibrate 0.4s ease-in-out;
+}

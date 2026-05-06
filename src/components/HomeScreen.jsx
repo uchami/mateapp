@@ -11,6 +11,13 @@ export default function HomeScreen() {
       description: t.chapters.fraccionesDesc,
       color: 'from-amber-400 to-orange-500',
     },
+    {
+      id: 'ecuaciones',
+      title: t.chapters.ecuaciones,
+      emoji: '🐔',
+      description: t.chapters.ecuacionesDesc,
+      color: 'from-rose-400 to-pink-600',
+    },
   ]
 
   return (

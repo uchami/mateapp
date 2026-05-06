@@ -6,6 +6,8 @@ export const translations = {
     chapters: {
       fracciones: 'Fracciones',
       fraccionesDesc: 'Sumá fracciones con pizzas y chocolates',
+      ecuaciones: 'Ecuaciones',
+      ecuacionesDesc: 'Desplumá a la X paso a paso',
     },
     fraccionesMenu: {
       pickActivity: 'Elegí una actividad',
@@ -65,6 +67,51 @@ export const translations = {
       empty: 'Vaciar',
       notSupported: (s) => `Shape "${s}" no soportada`,
     },
+    ecuaciones: {
+      pickLevel: 'Elegí un nivel',
+      leftSide: 'Lado izquierdo',
+      rightSide: 'Lado derecho',
+      sameOpWarning: 'Debes aplicar la misma operación a ambos lados del igual',
+      isolatedX: '¡X aislada! 🎉',
+      solvedX: '¡Despejaste la X! 🎉',
+      nextExercise: 'Siguiente ejercicio →',
+      howToPlay: '¿Cómo juego?',
+      comingSoon: 'Próximamente',
+      menu: [
+        { id: 'nivel-1', title: 'Nivel 1', subtitle: 'Desplumá a la X', desc: 'Una expresión sin igualdad. Dejá la X solita.' },
+        { id: 'nivel-2', title: 'Nivel 2', subtitle: 'Con un twist', desc: 'Aparece el =. Aplicá lo mismo a los dos lados.' },
+        { id: 'nivel-3', title: 'Nivel 3', subtitle: 'X de los dos lados', desc: 'aX + b = cX + d. Juntá las X y resolvé.' },
+        { id: 'nivel-4', title: 'Nivel 4', subtitle: 'Próximamente', desc: 'Coeficientes negativos.' },
+        { id: 'nivel-5', title: 'Nivel 5', subtitle: 'Próximamente', desc: 'Todo junto: negativos y fracciones.' },
+      ],
+      tutorialBack: '← Atrás',
+      tutorialNext: 'Siguiente →',
+      tutorialPlay: '¡A jugar!',
+      level1: {
+        title: 'Nivel 1 · Desplumá a la X',
+        slides: [
+          { title: 'Desplumá a la X', body: 'Tenés una expresión como **3X + 5**. Tu misión: dejar a la X solita, sin nada al lado.' },
+          { title: '¿Cómo se hace?', body: 'Vas a ver tres botones con operaciones. Elegí la que ayude a sacarle algo a la X. Por ejemplo, si tenés **3X + 5**, restando **5** te queda **3X**.' },
+          { title: 'Y al final…', body: 'Cuando quede **3X**, dividí entre **3** para dejar a la X bien solita. ¡Cada acierto le hace volar una pluma a la gallina! 🪶' },
+        ],
+      },
+      level2: {
+        title: 'Nivel 2 · Mismo movimiento de los dos lados',
+        slides: [
+          { title: 'Desplumá a la X… con un twist', body: 'Ahora hay un **=** de por medio: **3X + 5 = 0**. La X sigue queriendo estar sola, pero ahora hay dos lados.' },
+          { title: 'La regla de oro', body: '**Lo que hagas de un lado, hacelo del otro.** Vas a ver los mismos botones a la izquierda y a la derecha. Tenés que tocar el mismo en cada lado.' },
+          { title: 'Si te equivocás', body: 'Si elegís dos operaciones distintas, los botones van a vibrar en rojo y no pasa nada. Como dos llaves que arrancan el mismo auto. 🔑🔑' },
+        ],
+      },
+      level3: {
+        title: 'Nivel 3 · X a los dos lados',
+        slides: [
+          { title: 'X de los dos lados', body: 'Ahora la X aparece en los dos lados del igual: **4X + 2 = X + 8**. ¡Tenés que juntarlas!' },
+          { title: 'Primero las X', body: 'Vas a ver botones nuevos como **−2X**. Esos te sirven para mover las X a un solo lado. Acordate: la misma operación a izquierda y derecha.' },
+          { title: 'Después los números', body: 'Cuando las X estén juntas de un lado, mové los números al otro restando o sumando, y por último dividí. ¡La gallina te va a quedar pelada! 🐔' },
+        ],
+      },
+    },
   },
   en: {
     appTitle: 'MateApp',
@@ -73,6 +120,8 @@ export const translations = {
     chapters: {
       fracciones: 'Fractions',
       fraccionesDesc: 'Add fractions with pizzas and chocolates',
+      ecuaciones: 'Equations',
+      ecuacionesDesc: 'Pluck the X step by step',
     },
     fraccionesMenu: {
       pickActivity: 'Pick an activity',
@@ -131,6 +180,51 @@ export const translations = {
       fillAll: 'Fill all',
       empty: 'Empty',
       notSupported: (s) => `Shape "${s}" not supported`,
+    },
+    ecuaciones: {
+      pickLevel: 'Pick a level',
+      leftSide: 'Left side',
+      rightSide: 'Right side',
+      sameOpWarning: 'You must apply the same operation to both sides of the equals sign',
+      isolatedX: 'X is alone! 🎉',
+      solvedX: 'You solved for X! 🎉',
+      nextExercise: 'Next exercise →',
+      howToPlay: 'How do I play?',
+      comingSoon: 'Coming soon',
+      menu: [
+        { id: 'nivel-1', title: 'Level 1', subtitle: 'Pluck the X', desc: 'An expression with no equals. Get X alone.' },
+        { id: 'nivel-2', title: 'Level 2', subtitle: 'With a twist', desc: 'The = appears. Do the same on both sides.' },
+        { id: 'nivel-3', title: 'Level 3', subtitle: 'X on both sides', desc: 'aX + b = cX + d. Bring the X together and solve.' },
+        { id: 'nivel-4', title: 'Level 4', subtitle: 'Coming soon', desc: 'Negative coefficients.' },
+        { id: 'nivel-5', title: 'Level 5', subtitle: 'Coming soon', desc: 'All together: negatives and fractions.' },
+      ],
+      tutorialBack: '← Back',
+      tutorialNext: 'Next →',
+      tutorialPlay: 'Let\'s play!',
+      level1: {
+        title: 'Level 1 · Pluck the X',
+        slides: [
+          { title: 'Pluck the X', body: 'You have an expression like **3X + 5**. Your mission: leave X alone, with nothing next to it.' },
+          { title: 'How does it work?', body: 'You will see three operation buttons. Pick the one that helps get something off X. For example, if you have **3X + 5**, subtracting **5** leaves **3X**.' },
+          { title: 'And finally…', body: 'When you have **3X**, divide by **3** to get X all alone. Every correct move plucks a feather off the chicken! 🪶' },
+        ],
+      },
+      level2: {
+        title: 'Level 2 · Same move on both sides',
+        slides: [
+          { title: 'Pluck the X… with a twist', body: 'Now there is an **=** in the middle: **3X + 5 = 0**. X still wants to be alone, but now there are two sides.' },
+          { title: 'The golden rule', body: '**Whatever you do on one side, do on the other.** You will see the same buttons on the left and right. Tap the same one on each side.' },
+          { title: 'If you get it wrong', body: 'If you pick two different operations the buttons will shake red and nothing happens. Like two keys that start the same car. 🔑🔑' },
+        ],
+      },
+      level3: {
+        title: 'Level 3 · X on both sides',
+        slides: [
+          { title: 'X on both sides', body: 'Now X appears on both sides of the equals: **4X + 2 = X + 8**. You need to bring them together!' },
+          { title: 'First the X\'s', body: 'You will see new buttons like **−2X**. They let you move the X\'s to a single side. Remember: the same operation on the left and right.' },
+          { title: 'Then the numbers', body: 'Once the X\'s are on one side, move the numbers to the other by adding or subtracting, then divide. The chicken will end up bald! 🐔' },
+        ],
+      },
     },
   },
 }
