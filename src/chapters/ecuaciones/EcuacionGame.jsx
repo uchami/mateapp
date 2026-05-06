@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   applyOperation,
@@ -17,9 +17,9 @@ function opEquals(a, b) {
   return a && b && a.type === b.type && a.value === b.value
 }
 
-// level: 1 | 2 | 3
-// generator: () => state inicial
-// title, tutorialSlides
+const APPLY_DELAY_MS = 2000 // duracion de la animacion antes de resolver
+const RESOLVED_PULSE_MS = 400
+
 export default function EcuacionGame({ level, generator, title, tutorialSlides }) {
   const navigate = useNavigate()
   const { t } = useLang()
@@ -32,21 +32,30 @@ export default function EcuacionGame({ level, generator, title, tutorialSlides }
   const [vibrating, setVibrating] = useState(false)
   const [warning, setWarning] = useState(false)
   const [errorThisExercise, setErrorThisExercise] = useState(false)
+  const [pendingOp, setPendingOp] = useState(null)
+  const [justResolved, setJustResolved] = useState(false)
+  const animTimers = useRef([])
 
   const solved = isSolved(state)
   const options = useMemo(() => (solved ? [] : getOptions(state)), [state, solved])
+  const locked = !!pendingOp || vibrating
 
-  // efecto: cuando hay dos picks (niveles 2/3), validar
-  useEffect(() => {
-    if (level === 1) return
-    if (!pickedLeft || !pickedRight) return
+  function clearAnimTimers() {
+    animTimers.current.forEach(clearTimeout)
+    animTimers.current = []
+  }
 
-    if (opEquals(pickedLeft, pickedRight)) {
-      // misma op a ambos lados -> aplicar
-      const wasCorrect = opEquals(pickedLeft, correctOp(state))
-      const next = applyOperation(state, pickedLeft)
-      setState(next)
-      setWarning(false)
+  // Aplica la operacion con animacion: muestra parentesis + op antes de resolver.
+  function scheduleApply(op) {
+    if (locked) return
+    const wasCorrect = opEquals(op, correctOp(state))
+    setPendingOp(op)
+    const tApply = setTimeout(() => {
+      setState((prev) => applyOperation(prev, op))
+      setPendingOp(null)
+      setJustResolved(true)
+      const tPulse = setTimeout(() => setJustResolved(false), RESOLVED_PULSE_MS)
+      animTimers.current.push(tPulse)
       if (wasCorrect) {
         setFeathersLost((f) => f + 1)
         if (!errorThisExercise) setStreak((s) => s + 1)
@@ -54,10 +63,21 @@ export default function EcuacionGame({ level, generator, title, tutorialSlides }
         setErrorThisExercise(true)
         setStreak(0)
       }
+    }, APPLY_DELAY_MS)
+    animTimers.current.push(tApply)
+  }
+
+  // niveles 2/3: cuando hay dos picks, validar igualdad y schedule apply
+  useEffect(() => {
+    if (level === 1) return
+    if (!pickedLeft || !pickedRight) return
+
+    if (opEquals(pickedLeft, pickedRight)) {
+      setWarning(false)
+      scheduleApply(pickedLeft)
       setPickedLeft(null)
       setPickedRight(null)
     } else {
-      // distintas -> vibrar y avisar
       setVibrating(true)
       setWarning(true)
       const t1 = setTimeout(() => setVibrating(false), 500)
@@ -75,26 +95,17 @@ export default function EcuacionGame({ level, generator, title, tutorialSlides }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pickedLeft, pickedRight])
 
-  function handleSingleSide(op) {
-    // nivel 1: aplica directo
-    const wasCorrect = opEquals(op, correctOp(state))
-    const next = applyOperation(state, op)
-    setState(next)
-    if (wasCorrect) {
-      setFeathersLost((f) => f + 1)
-      if (!errorThisExercise) setStreak((s) => s + 1)
-    } else {
-      setErrorThisExercise(true)
-      setStreak(0)
-    }
-  }
+  useEffect(() => () => clearAnimTimers(), [])
 
   function nextExercise() {
+    clearAnimTimers()
     setState(generator())
     setPickedLeft(null)
     setPickedRight(null)
     setErrorThisExercise(false)
     setWarning(false)
+    setPendingOp(null)
+    setJustResolved(false)
   }
 
   return (
@@ -135,22 +146,25 @@ export default function EcuacionGame({ level, generator, title, tutorialSlides }
       </div>
 
       {/* Expresion */}
-      <div className="bg-white rounded-2xl shadow-lg px-8 py-6 my-4">
-        <ExpressionDisplay state={state} solved={solved} />
+      <div className="bg-white rounded-2xl shadow-lg px-8 py-6 my-4 min-h-[100px] flex items-center">
+        <ExpressionDisplay
+          state={state}
+          solved={solved}
+          pendingOp={pendingOp}
+          justResolved={justResolved}
+        />
       </div>
 
-      {/* Warning para niveles 2/3 */}
       {warning && (
         <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-2 rounded-lg my-2 text-sm font-medium animate-shake">
           {t.ecuaciones.sameOpWarning}
         </div>
       )}
 
-      {/* Opciones */}
       {!solved && (
         <div className="mt-2 w-full max-w-2xl">
           {level === 1 ? (
-            <SingleColumnOptions options={options} onPick={handleSingleSide} />
+            <SingleColumnOptions options={options} onPick={scheduleApply} disabled={locked} />
           ) : (
             <DualColumnOptions
               options={options}
@@ -159,12 +173,12 @@ export default function EcuacionGame({ level, generator, title, tutorialSlides }
               onPickLeft={setPickedLeft}
               onPickRight={setPickedRight}
               vibrating={vibrating}
+              disabled={locked}
             />
           )}
         </div>
       )}
 
-      {/* Resuelto */}
       {solved && (
         <div className="mt-4 text-center">
           <div className="text-4xl font-bold text-green-600 mb-2">
@@ -186,21 +200,42 @@ export default function EcuacionGame({ level, generator, title, tutorialSlides }
   )
 }
 
-function ExpressionDisplay({ state, solved }) {
+function ExpressionDisplay({ state, solved, pendingOp, justResolved }) {
   const leftStr = formatSide(state.left)
   const rightStr = state.right ? formatSide(state.right) : null
 
   return (
-    <div className={`text-4xl md:text-5xl font-mono font-bold text-gray-800 flex items-center gap-4 ${solved ? 'text-green-600' : ''}`}>
-      <span>{leftStr}</span>
+    <div
+      className={`text-4xl md:text-5xl font-mono font-bold flex items-center gap-3 flex-wrap justify-center ${
+        solved ? 'text-green-600' : 'text-gray-800'
+      }`}
+    >
+      <SidePart str={leftStr} pendingOp={pendingOp} justResolved={justResolved} />
       {rightStr !== null && (
         <>
           <span>=</span>
-          <span>{rightStr}</span>
+          <SidePart str={rightStr} pendingOp={pendingOp} justResolved={justResolved} />
         </>
       )}
     </div>
   )
+}
+
+function SidePart({ str, pendingOp, justResolved }) {
+  if (pendingOp) {
+    return (
+      <span className="inline-flex items-center gap-2">
+        <span className="text-blue-600 animate-paren-pop">(</span>
+        <span>{str}</span>
+        <span className="text-blue-600 animate-paren-pop">)</span>
+        <span className="text-blue-600 animate-op-slide-in">{formatOp(pendingOp)}</span>
+      </span>
+    )
+  }
+  if (justResolved) {
+    return <span className="animate-resolve-pulse">{str}</span>
+  }
+  return <span>{str}</span>
 }
 
 function OptionButton({ op, onClick, selected, disabled }) {
@@ -209,9 +244,11 @@ function OptionButton({ op, onClick, selected, disabled }) {
       onClick={onClick}
       disabled={disabled}
       className={`px-5 py-3 rounded-xl font-mono font-bold text-2xl border-2 transition-all
-        ${selected
-          ? 'bg-indigo-500 text-white border-indigo-600 scale-105 shadow-lg'
-          : 'bg-white text-gray-700 border-gray-300 hover:border-indigo-400 hover:scale-105'}
+        ${
+          selected
+            ? 'bg-indigo-500 text-white border-indigo-600 scale-105 shadow-lg'
+            : 'bg-white text-gray-700 border-gray-300 hover:border-indigo-400 hover:scale-105'
+        }
         ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
       `}
     >
@@ -220,17 +257,25 @@ function OptionButton({ op, onClick, selected, disabled }) {
   )
 }
 
-function SingleColumnOptions({ options, onPick }) {
+function SingleColumnOptions({ options, onPick, disabled }) {
   return (
     <div className="flex justify-center gap-3 flex-wrap">
       {options.map((op, i) => (
-        <OptionButton key={i} op={op} onClick={() => onPick(op)} />
+        <OptionButton key={i} op={op} onClick={() => onPick(op)} disabled={disabled} />
       ))}
     </div>
   )
 }
 
-function DualColumnOptions({ options, pickedLeft, pickedRight, onPickLeft, onPickRight, vibrating }) {
+function DualColumnOptions({
+  options,
+  pickedLeft,
+  pickedRight,
+  onPickLeft,
+  onPickRight,
+  vibrating,
+  disabled,
+}) {
   const { t } = useLang()
   return (
     <div className="grid grid-cols-2 gap-6">
@@ -242,7 +287,7 @@ function DualColumnOptions({ options, pickedLeft, pickedRight, onPickLeft, onPic
             op={op}
             onClick={() => onPickLeft(op)}
             selected={opEquals(pickedLeft, op)}
-            disabled={vibrating}
+            disabled={disabled}
           />
         ))}
       </div>
@@ -254,7 +299,7 @@ function DualColumnOptions({ options, pickedLeft, pickedRight, onPickLeft, onPic
             op={op}
             onClick={() => onPickRight(op)}
             selected={opEquals(pickedRight, op)}
-            disabled={vibrating}
+            disabled={disabled}
           />
         ))}
       </div>

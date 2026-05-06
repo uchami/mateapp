@@ -64,6 +64,39 @@ body {
   animation: feather-fall-screen ease-in forwards;
 }
 
+@keyframes paren-pop {
+  0% { opacity: 0; transform: scaleY(0.3); }
+  60% { opacity: 1; transform: scaleY(1.15); }
+  100% { opacity: 1; transform: scaleY(1); }
+}
+
+.animate-paren-pop {
+  animation: paren-pop 0.3s ease-out forwards;
+  display: inline-block;
+  transform-origin: center;
+}
+
+@keyframes op-slide-in {
+  0% { opacity: 0; transform: translateY(-12px) scale(0.7); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.animate-op-slide-in {
+  animation: op-slide-in 0.35s ease-out 0.25s both;
+  display: inline-block;
+}
+
+@keyframes resolve-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); color: #2563eb; }
+  100% { transform: scale(1); }
+}
+
+.animate-resolve-pulse {
+  animation: resolve-pulse 0.4s ease-out;
+  display: inline-block;
+}
+
 @keyframes victory-bounce {
   0%, 100% { transform: translateY(0) rotate(-2deg); }
   50% { transform: translateY(-8px) rotate(2deg); }
