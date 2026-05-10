@@ -2,28 +2,33 @@ import { useEffect, useState, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   applyOperation,
-  correctOp,
-  formatOp,
-  formatSide,
   getOptions,
+  isProgress,
   isSolved,
   stepsRemaining,
 } from './EcuacionEngine'
+import { ExpressionDisplay, OptionButton } from './EcuacionRender'
 import Chicken from './Chicken'
 import Tutorial from './Tutorial'
 import { useLang } from '../../i18n/LanguageContext'
 
 function opEquals(a, b) {
-  return a && b && a.type === b.type && a.value === b.value
+  if (!a || !b) return false
+  if (a.type !== b.type) return false
+  const va = typeof a.value === 'number' ? { n: a.value, d: 1 } : a.value
+  const vb = typeof b.value === 'number' ? { n: b.value, d: 1 } : b.value
+  return va.n === vb.n && va.d === vb.d
 }
 
-const APPLY_DELAY_MS = 2000 // duracion de la animacion antes de resolver
+const APPLY_DELAY_MS = 2000
 const RESOLVED_PULSE_MS = 400
+const UNDO_COST = 4
 
 export default function EcuacionGame({ level, generator, title, tutorialSlides }) {
   const navigate = useNavigate()
   const { t } = useLang()
-  const [state, setState] = useState(() => generator())
+  const exerciseIndexRef = useRef(0)
+  const [state, setState] = useState(() => generator(0))
   const [feathersLost, setFeathersLost] = useState(0)
   const [streak, setStreak] = useState(0)
   const [showTutorial, setShowTutorial] = useState(true)
@@ -34,6 +39,7 @@ export default function EcuacionGame({ level, generator, title, tutorialSlides }
   const [errorThisExercise, setErrorThisExercise] = useState(false)
   const [pendingOp, setPendingOp] = useState(null)
   const [justResolved, setJustResolved] = useState(false)
+  const [history, setHistory] = useState([])
   const animTimers = useRef([])
 
   const solved = isSolved(state)
@@ -45,12 +51,13 @@ export default function EcuacionGame({ level, generator, title, tutorialSlides }
     animTimers.current = []
   }
 
-  // Aplica la operacion con animacion: muestra parentesis + op antes de resolver.
   function scheduleApply(op) {
     if (locked) return
-    const wasCorrect = opEquals(op, correctOp(state))
+    const wasCorrect = isProgress(state, op)
+    const snapshot = { state, errorThisExercise }
     setPendingOp(op)
     const tApply = setTimeout(() => {
+      setHistory((h) => [...h, snapshot])
       setState((prev) => applyOperation(prev, op))
       setPendingOp(null)
       setJustResolved(true)
@@ -67,7 +74,20 @@ export default function EcuacionGame({ level, generator, title, tutorialSlides }
     animTimers.current.push(tApply)
   }
 
-  // niveles 2/3: cuando hay dos picks, validar igualdad y schedule apply
+  function undo() {
+    if (locked || history.length === 0) return
+    const last = history[history.length - 1]
+    setHistory((h) => h.slice(0, -1))
+    setState(last.state)
+    setErrorThisExercise(last.errorThisExercise)
+    setPickedLeft(null)
+    setPickedRight(null)
+    setPendingOp(null)
+    setWarning(false)
+    setStreak((s) => Math.max(0, s - UNDO_COST))
+  }
+
+  // niveles 2/3/4: cuando hay dos picks, validar igualdad
   useEffect(() => {
     if (level === 1) return
     if (!pickedLeft || !pickedRight) return
@@ -99,19 +119,21 @@ export default function EcuacionGame({ level, generator, title, tutorialSlides }
 
   function nextExercise() {
     clearAnimTimers()
-    setState(generator())
+    exerciseIndexRef.current += 1
+    setState(generator(exerciseIndexRef.current))
     setPickedLeft(null)
     setPickedRight(null)
     setErrorThisExercise(false)
     setWarning(false)
     setPendingOp(null)
     setJustResolved(false)
+    setHistory([])
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 p-4 flex flex-col items-center">
       {/* Header */}
-      <div className="absolute top-4 left-4 z-10 flex items-center gap-3">
+      <div className="absolute top-4 left-4 z-10 flex items-center gap-3 flex-wrap">
         <button
           onClick={() => navigate('/ecuaciones')}
           className="text-gray-500 hover:text-gray-700 text-sm font-medium"
@@ -130,6 +152,12 @@ export default function EcuacionGame({ level, generator, title, tutorialSlides }
             <span>{streak}</span>
           </div>
         )}
+        <UndoButton
+          disabled={locked || history.length === 0 || solved}
+          onClick={undo}
+          streak={streak}
+          t={t}
+        />
       </div>
 
       <h1 className="text-2xl md:text-3xl font-bold text-gray-700 mt-12 mb-2 text-center">
@@ -200,59 +228,26 @@ export default function EcuacionGame({ level, generator, title, tutorialSlides }
   )
 }
 
-function ExpressionDisplay({ state, solved, pendingOp, justResolved }) {
-  const leftStr = formatSide(state.left)
-  const rightStr = state.right ? formatSide(state.right) : null
-
-  return (
-    <div
-      className={`text-4xl md:text-5xl font-mono font-bold flex items-center gap-3 flex-wrap justify-center ${
-        solved ? 'text-green-600' : 'text-gray-800'
-      }`}
-    >
-      <SidePart str={leftStr} pendingOp={pendingOp} justResolved={justResolved} />
-      {rightStr !== null && (
-        <>
-          <span>=</span>
-          <SidePart str={rightStr} pendingOp={pendingOp} justResolved={justResolved} />
-        </>
-      )}
-    </div>
-  )
-}
-
-function SidePart({ str, pendingOp, justResolved }) {
-  if (pendingOp) {
-    return (
-      <span className="inline-flex items-center gap-2">
-        <span className="text-blue-600 animate-paren-pop">(</span>
-        <span>{str}</span>
-        <span className="text-blue-600 animate-paren-pop">)</span>
-        <span className="text-blue-600 animate-op-slide-in">{formatOp(pendingOp)}</span>
-      </span>
-    )
-  }
-  if (justResolved) {
-    return <span className="animate-resolve-pulse">{str}</span>
-  }
-  return <span>{str}</span>
-}
-
-function OptionButton({ op, onClick, selected, disabled }) {
+export function UndoButton({ disabled, onClick, streak, t }) {
+  const free = streak < UNDO_COST
+  const title = free ? t.ecuaciones.undoFree : t.ecuaciones.undoCost
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`px-5 py-3 rounded-xl font-mono font-bold text-2xl border-2 transition-all
+      title={title}
+      className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold shadow transition-all
         ${
-          selected
-            ? 'bg-indigo-500 text-white border-indigo-600 scale-105 shadow-lg'
-            : 'bg-white text-gray-700 border-gray-300 hover:border-indigo-400 hover:scale-105'
-        }
-        ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-      `}
+          disabled
+            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            : 'bg-white text-gray-700 hover:bg-gray-50 hover:scale-105 cursor-pointer border border-gray-300'
+        }`}
     >
-      {formatOp(op)}
+      <span>↶</span>
+      <span>{t.ecuaciones.undo}</span>
+      {!disabled && !free && (
+        <span className="text-xs text-orange-600">−{UNDO_COST}🔥</span>
+      )}
     </button>
   )
 }

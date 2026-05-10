@@ -2,13 +2,13 @@ import { Link, useNavigate } from 'react-router-dom'
 import gallinaImg from '../../assets/ecuaciones/gallinadesplumada.png'
 import { useLang } from '../../i18n/LanguageContext'
 
-const ENABLED_IDS = new Set(['nivel-1', 'nivel-2', 'nivel-3'])
+const ENABLED_IDS = new Set(['nivel-1', 'nivel-2', 'nivel-3', 'nivel-4', 'nivel-5'])
 const COLORS = {
   'nivel-1': 'from-amber-400 to-orange-500',
   'nivel-2': 'from-orange-400 to-rose-500',
   'nivel-3': 'from-rose-400 to-pink-600',
-  'nivel-4': 'from-gray-300 to-gray-400',
-  'nivel-5': 'from-gray-300 to-gray-400',
+  'nivel-4': 'from-pink-500 to-purple-600',
+  'nivel-5': 'from-purple-500 to-indigo-700',
 }
 
 export default function EcuacionesMenu() {
