@@ -201,3 +201,75 @@ export const exercises = [
     answerShapes: 1,
   },
 ]
+
+// Denominadores soportados por forma (limitados para que se vean bien en pantalla)
+const DENOMS_BY_SHAPE = {
+  pizza: [3, 4, 5, 6, 8],
+  chocolate: [4, 6, 8],
+}
+
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)]
+}
+
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+function sameOperands(a, b) {
+  if (!a || !b) return false
+  if (a.shape !== b.shape) return false
+  if (a.operands[0].denominator !== b.operands[0].denominator) return false
+  return (
+    a.operands[0].numerator === b.operands[0].numerator &&
+    a.operands[1].numerator === b.operands[1].numerator
+  )
+}
+
+function buildSuma(id) {
+  const shape = pick(['pizza', 'chocolate'])
+  const denominator = pick(DENOMS_BY_SHAPE[shape])
+  const n1 = randInt(1, denominator)
+  const n2 = randInt(1, denominator)
+  const sum = n1 + n2
+  return {
+    id,
+    operation: '+',
+    shape,
+    operands: [
+      { numerator: n1, denominator },
+      { numerator: n2, denominator },
+    ],
+    answerNumerator: sum,
+    answerDenominator: denominator,
+    answerShapes: Math.ceil(sum / denominator),
+  }
+}
+
+function buildResta(id) {
+  const shape = pick(['pizza', 'chocolate'])
+  const denominator = pick(DENOMS_BY_SHAPE[shape])
+  const n1 = randInt(2, denominator)
+  const n2 = randInt(1, n1 - 1)
+  return {
+    id,
+    operation: '-',
+    shape,
+    operands: [
+      { numerator: n1, denominator },
+      { numerator: n2, denominator },
+    ],
+    answerNumerator: n1 - n2,
+    answerDenominator: denominator,
+    answerShapes: 1,
+  }
+}
+
+export function generateExercise(operation, id, previous = null) {
+  const builder = operation === '-' ? buildResta : buildSuma
+  let candidate = builder(id)
+  for (let i = 0; i < 5 && sameOperands(candidate, previous); i++) {
+    candidate = builder(id)
+  }
+  return candidate
+}

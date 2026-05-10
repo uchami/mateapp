@@ -3,7 +3,7 @@ import FractionShape from '../../components/FractionShape'
 import SuccessOverlay from '../../components/SuccessOverlay'
 import { useLang } from '../../i18n/LanguageContext'
 
-export default function FraccionesExercise({ exercise, onNext }) {
+export default function FraccionesExercise({ exercise, onNext, onResult }) {
   const { shape, operands, answerNumerator, answerDenominator, answerShapes, operation = '+' } = exercise
   const parts = operands[0].denominator
   const { t } = useLang()
@@ -19,6 +19,7 @@ export default function FraccionesExercise({ exercise, onNext }) {
 
   const [selections, setSelections] = useState(getInitialSelections)
   const [feedback, setFeedback] = useState(null) // null | 'correct' | 'incorrect'
+  const [hasErrored, setHasErrored] = useState(false)
 
   function handleToggle(shapeIndex, partIndex) {
     // Can only interact with shape N+1 if shape N is full
@@ -62,8 +63,11 @@ export default function FraccionesExercise({ exercise, onNext }) {
     const totalSelected = selections.reduce((sum, s) => sum + s.length, 0)
     if (totalSelected === answerNumerator) {
       setFeedback('correct')
+      onResult?.({ correct: true, firstTry: !hasErrored })
     } else {
       setFeedback('incorrect')
+      setHasErrored(true)
+      onResult?.({ correct: false })
     }
   }
 
