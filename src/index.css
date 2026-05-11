@@ -115,3 +115,86 @@ body {
 .animate-vibrate {
   animation: vibrate 0.4s ease-in-out;
 }
+
+/* ---- Sistemas: monedas, cofre, cañón, mapa ---- */
+
+@keyframes coin-pop {
+  0% { transform: scale(1) rotate(0deg); }
+  40% { transform: scale(1.4) rotate(-15deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+.animate-coin-pop {
+  animation: coin-pop 0.55s ease-out;
+}
+
+@keyframes combo-pop {
+  0% { transform: translateY(0) scale(0.6); opacity: 0; }
+  60% { transform: translateY(-2px) scale(1.2); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.animate-combo-pop {
+  animation: combo-pop 0.4s ease-out;
+  display: inline-block;
+}
+
+@keyframes chest-glow {
+  0%, 100% { filter: drop-shadow(0 0 4px #fbbf24); }
+  50% { filter: drop-shadow(0 0 14px #f59e0b); }
+}
+
+.animate-chest-glow {
+  animation: chest-glow 1.6s ease-in-out infinite;
+}
+
+@keyframes cannon-fire {
+  0% { transform: translate(0, 0); }
+  30% { transform: translate(-8px, 12px); }
+  60% { transform: translate(0, -2px); }
+  100% { transform: translate(0, 0); }
+}
+
+.animate-cannon-fire {
+  animation: cannon-fire 0.7s ease-in-out;
+}
+
+@keyframes cannon-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+
+.animate-cannon-shake {
+  animation: cannon-shake 0.6s ease-in-out;
+}
+
+@keyframes ship-sail {
+  0%, 100% { transform: translate(-50%, 0) rotate(-2deg); }
+  50% { transform: translate(-50%, -3px) rotate(2deg); }
+}
+
+.animate-ship-sail {
+  animation: ship-sail 2.4s ease-in-out infinite;
+}
+
+@keyframes star-twinkle {
+  0%, 100% { transform-origin: center; transform: scale(1); opacity: 0.95; }
+  50% { transform: scale(1.25); opacity: 1; }
+}
+
+.animate-star-twinkle {
+  animation: star-twinkle 1.2s ease-in-out infinite;
+  transform-box: fill-box;
+}
+
+@keyframes recta-aparece {
+  0% { stroke-dasharray: 0 600; opacity: 0; }
+  100% { stroke-dasharray: 600 0; opacity: 1; }
+}
+
+.animate-recta-aparece {
+  animation: recta-aparece 0.9s ease-out forwards;
+}

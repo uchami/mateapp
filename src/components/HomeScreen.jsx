@@ -18,6 +18,13 @@ export default function HomeScreen() {
       description: t.chapters.ecuacionesDesc,
       color: 'from-rose-400 to-pink-600',
     },
+    {
+      id: 'sistemas',
+      title: t.chapters.sistemas,
+      emoji: '🏴‍☠️',
+      description: t.chapters.sistemasDesc,
+      color: 'from-sky-500 to-blue-700',
+    },
   ]
 
   return (
