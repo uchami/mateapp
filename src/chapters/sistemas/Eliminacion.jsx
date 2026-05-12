@@ -386,10 +386,10 @@ export default function Eliminacion({ nivel }) {
           ) : (
             <>
               <SistemaConSigno>
-                <div className={`transition-transform ${cannonAnim ? 'animate-cannon-shake' : ''}`}>
+                <div className={cannonAnim ? 'animate-eq-success' : ''}>
                   <Ecuacion eq={eq1Actual} scale="md" />
                 </div>
-                <div className={`transition-transform ${cannonAnim ? 'animate-cannon-fire' : ''}`}>
+                <div className={cannonAnim ? 'animate-eq-success' : ''}>
                   <Ecuacion eq={eq2Actual} scale="md" />
                 </div>
               </SistemaConSigno>
@@ -510,7 +510,7 @@ export default function Eliminacion({ nivel }) {
             <TokensGrandes tokens={ecuacionTokens(sistema.eq1)} scale="lg" highlight />
           </div>
           <div className="text-center text-amber-700 text-sm mb-3">
-            {variableQueFalta() === 'X' ? t.sistemas.ingresaFormaX : t.sistemas.ingresaFormaY}
+            {variableQueFalta() === 'X' ? t.sistemas.simplificaFormaX : t.sistemas.simplificaFormaY}
           </div>
           <div className="flex items-center justify-center gap-2 flex-wrap text-2xl font-mono font-bold text-amber-900">
             <FracInput value={finalAInput} onChange={setFinalAInput} placeholder="a" autoFocus />

@@ -205,6 +205,8 @@ export const translations = {
       ],
       ingresaFormaX: 'Ahora juntá los términos: las X con las X y los números con los números. ¿Cómo queda en forma a·X + b = c?',
       ingresaFormaY: 'Ahora juntá los términos: las Y con las Y y los números con los números. ¿Cómo queda en forma a·Y + b = c?',
+      simplificaFormaX: 'Resolvé la cuenta y dejala en forma a·X + b = c.',
+      simplificaFormaY: 'Resolvé la cuenta y dejala en forma a·Y + b = c.',
       bienForma: [
         'Devoraste 👑 quedaste con una sola incógnita.',
         'W, juntaste todo. Puro rizz matemático ✨',
@@ -611,6 +613,8 @@ export const translations = {
       ],
       ingresaFormaX: 'Now combine: X with X, numbers with numbers. What\'s the a·X + b = c form?',
       ingresaFormaY: 'Now combine: Y with Y, numbers with numbers. What\'s the a·Y + b = c form?',
+      simplificaFormaX: 'Do the math and leave it in the form a·X + b = c.',
+      simplificaFormaY: 'Do the math and leave it in the form a·Y + b = c.',
       bienForma: [
         'You devoured 👑 only one unknown left.',
         'W, combined it all. Pure math rizz ✨',

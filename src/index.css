@@ -171,6 +171,28 @@ body {
   animation: cannon-shake 0.6s ease-in-out;
 }
 
+/* Animación de "suma exitosa" en eliminación: la ecuación se pinta de azul,
+   se agranda un poco, y vuelve a su lugar. Sustituye al cannon-shake/fire que
+   se sentía como error. */
+@keyframes eq-success-scale {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.18); }
+  70%  { transform: scale(1.10); }
+  100% { transform: scale(1); }
+}
+@keyframes eq-success-color {
+  0%, 100% { color: rgb(31 41 55); }
+  35%, 70% { color: rgb(37 99 235); }
+}
+
+.animate-eq-success {
+  animation: eq-success-scale 0.9s ease-in-out;
+  transform-origin: center;
+}
+.animate-eq-success * {
+  animation: eq-success-color 0.9s ease-in-out;
+}
+
 @keyframes ship-sail {
   0%, 100% { transform: translate(-50%, 0) rotate(-2deg); }
   50% { transform: translate(-50%, -3px) rotate(2deg); }
