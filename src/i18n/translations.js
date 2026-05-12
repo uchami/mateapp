@@ -90,6 +90,8 @@ export const translations = {
       numPlaceholder: '#',
       denPlaceholder: '(÷)',
       fracHint: 'numerador ÷ denominador (opcional)',
+      addFraccion: '+ fracción',
+      removeFraccion: '− fracción',
       menu: [
         { id: 'nivel-1', title: 'Nivel 1', subtitle: 'Desplumá a la X', desc: 'Una expresión sin igualdad. Dejá la X solita.' },
         { id: 'nivel-2', title: 'Nivel 2', subtitle: 'Con un twist', desc: 'Aparece el =. Aplicá lo mismo a los dos lados.' },
@@ -246,6 +248,10 @@ export const translations = {
       ],
       calculaOtra: 'Calculá',
       recordatorioSust: 'Reemplazá en',
+      yaSabesPrefix: '¡Vamos avanzando! Ahora que ya sabés que',
+      reemplacemosLa: ', reemplacemos la',
+      porValor: 'por',
+      enLaEcuacion: 'en la ecuación:',
       casiOtra: [
         'Esa no, fue un L total. Volvé a probar.',
         'Terrible cringe esa cuenta. Revisá la sustitución.',
@@ -490,6 +496,8 @@ export const translations = {
       numPlaceholder: '#',
       denPlaceholder: '(÷)',
       fracHint: 'numerator ÷ denominator (optional)',
+      addFraccion: '+ fraction',
+      removeFraccion: '− fraction',
       menu: [
         { id: 'nivel-1', title: 'Level 1', subtitle: 'Pluck the X', desc: 'An expression with no equals. Get X alone.' },
         { id: 'nivel-2', title: 'Level 2', subtitle: 'With a twist', desc: 'The = appears. Do the same on both sides.' },
@@ -646,6 +654,10 @@ export const translations = {
       ],
       calculaOtra: 'Compute',
       recordatorioSust: 'Substitute in',
+      yaSabesPrefix: 'Nice progress! Now that you know',
+      reemplacemosLa: ', replace',
+      porValor: 'with',
+      enLaEcuacion: 'in the equation:',
       casiOtra: [
         'Nope, total L. Try again.',
         'Terrible cringe on that count. Check the substitution.',

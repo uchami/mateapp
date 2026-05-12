@@ -27,10 +27,16 @@ export function fracToInput(f) {
 }
 
 // Input simple para una fracción. Acepta "−3", "3", "3/4", "-3/4".
-export default function FracInput({ value, onChange, placeholder, disabled, autoFocus }) {
+export default function FracInput({ value, onChange, placeholder, disabled, autoFocus, onSubmit }) {
   const { t } = useLang()
   function clean(s) {
     return s.replace(/[^0-9/-]/g, '').replace(/(?!^)-/g, '')
+  }
+  function onKeyDown(e) {
+    if (e.key === 'Enter' && onSubmit) {
+      e.preventDefault()
+      onSubmit()
+    }
   }
   return (
     <input
@@ -40,6 +46,7 @@ export default function FracInput({ value, onChange, placeholder, disabled, auto
       autoFocus={autoFocus}
       disabled={disabled}
       onChange={(e) => onChange(clean(e.target.value))}
+      onKeyDown={onKeyDown}
       placeholder={placeholder ?? t.sistemas.fracPlaceholder}
       className={`w-20 px-2 py-1 rounded-xl border-2 font-mono font-bold text-xl text-center
         ${disabled ? 'bg-gray-100 border-gray-300 text-gray-500' : 'bg-white border-amber-400 text-amber-900 focus:border-amber-700 focus:outline-none'}`}

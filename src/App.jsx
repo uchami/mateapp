@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import HomeScreen from './components/HomeScreen'
 import FraccionesMenu from './chapters/fracciones/FraccionesMenu'
 import FraccionesChapter from './chapters/fracciones'
@@ -21,7 +21,7 @@ import { LanguageProvider } from './i18n/LanguageContext'
 export default function App() {
   return (
     <LanguageProvider>
-      <BrowserRouter>
+      <HashRouter>
         <LanguageSwitcher />
         <Routes>
           <Route path="/" element={<HomeScreen />} />
@@ -45,8 +45,9 @@ export default function App() {
           <Route path="/sistemas/eliminacion/nivel-3" element={<Eliminacion key="eli-3" nivel="nivel-3" />} />
           <Route path="/sistemas/grafico" element={<Grafico />} />
           <Route path="/sistemas/elegir" element={<ElegirMetodo />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </LanguageProvider>
   )
 }

@@ -5,7 +5,7 @@ import {
   generateEliminacion1, generateEliminacion2, generateEliminacion3,
   mulEq, addEq,
 } from './SistemaEngine'
-import { Ecuacion, ecuacionTokens, aXbcTokens } from './SistemaRender'
+import { Ecuacion, ecuacionTokens, aXbcTokens, TokensGrandes } from './SistemaRender'
 import { TokenList } from '../ecuaciones/EcuacionRender'
 import SistemaLayout from './SistemaLayout'
 import useMonedas from './useMonedas'
@@ -284,25 +284,74 @@ export default function Eliminacion({ nivel }) {
   }
 
   // ---------- Helpers de render ----------
-  // Preview de "(lado izq) × k = (c) × k" — muestra el factor azul a ambos lados.
+  // Preview de "k·aX + k·bY = k·c" — pre-distribuye la K a cada término para que
+  // sea más claro que multiplicar la ecuación de la forma "(a·X + b·Y) · k".
+  // Coeficientes negativos se muestran entre paréntesis ej. "k·(-4)X".
+  function fmtCoefVar(coef, V) {
+    if (coef.n === 0) return ''
+    if (coef.n === 1 && coef.d === 1) return V
+    if (coef.n === -1 && coef.d === 1) return `(−${V})`
+    if (coef.n < 0) return `(${coef.n})${V}`
+    return `${coef.n}${V}`
+  }
+  function fmtConst(c) {
+    if (c.n < 0) return `(${c.n})`
+    return `${c.n}`
+  }
+
+  // Wrap con un "+" grande rojo a la izquierda, centrado verticalmente entre las
+  // dos ecuaciones hijas, para indicar que se van a sumar.
+  function SistemaConSigno({ children }) {
+    return (
+      <div className="relative inline-flex flex-col items-center gap-2 px-10">
+        <span
+          aria-hidden
+          className="absolute left-0 top-1/2 -translate-y-1/2 text-red-500 font-bold text-4xl md:text-5xl select-none"
+        >
+          +
+        </span>
+        {children}
+      </div>
+    )
+  }
+
   function EcuacionConKPreview({ eq, kInput, kLabel = 'k', color = '#2563eb' }) {
     const k = parseFrac(kInput)
     const kRender = k && !isZero(k) ? fracStr(k) : kLabel
     const isFaded = !k || isZero(k)
-    // Tokens del lado izquierdo: a·X + b·Y  (omitimos el = c, lo ponemos manual)
-    const left = ecuacionTokens(eq).slice(0, -2) // quitamos "=" y la constante c
-    const right = ecuacionTokens(eq).slice(-1) // la constante c
+    const kCls = isFaded ? 'opacity-50' : ''
+    const showA = !isZero(eq.a)
+    const showB = !isZero(eq.b)
+    const Kspan = (
+      <span style={{ color }} className={`${kCls} font-mono`}>
+        {kRender}
+      </span>
+    )
     return (
-      <div className="flex items-center gap-1 flex-wrap justify-center font-mono font-bold text-2xl md:text-3xl">
-        <span className="text-gray-800">(</span>
-        <span className="text-gray-800"><TokenList tokens={left} /></span>
-        <span className="text-gray-800">)</span>
-        <span style={{ color }} className={isFaded ? 'opacity-50' : ''}>· {kRender}</span>
-        <span className="text-gray-800 mx-1">=</span>
-        <span className="text-gray-800">(</span>
-        <span className="text-gray-800"><TokenList tokens={right} /></span>
-        <span className="text-gray-800">)</span>
-        <span style={{ color }} className={isFaded ? 'opacity-50' : ''}>· {kRender}</span>
+      <div className="flex items-center gap-1 flex-wrap justify-center font-mono font-bold text-2xl md:text-3xl text-gray-800">
+        {showA && (
+          <span className="inline-flex items-baseline gap-0.5">
+            {Kspan}
+            <span style={{ color }} className={kCls}>·</span>
+            <span>{fmtCoefVar(eq.a, 'X')}</span>
+          </span>
+        )}
+        {showB && (
+          <>
+            {showA && <span className="mx-1">+</span>}
+            <span className="inline-flex items-baseline gap-0.5">
+              {Kspan}
+              <span style={{ color }} className={kCls}>·</span>
+              <span>{fmtCoefVar(eq.b, 'Y')}</span>
+            </span>
+          </>
+        )}
+        <span className="mx-1">=</span>
+        <span className="inline-flex items-baseline gap-0.5">
+          {Kspan}
+          <span style={{ color }} className={kCls}>·</span>
+          <span>{fmtConst(eq.c)}</span>
+        </span>
       </div>
     )
   }
@@ -322,26 +371,28 @@ export default function Eliminacion({ nivel }) {
         <div className="text-xs uppercase tracking-wider text-amber-700 font-bold mb-2 text-center">
           {t.sistemas.sistema}
         </div>
-        <div className="flex flex-col gap-2 items-center">
+        <div className="relative flex flex-col gap-2 items-center">
           {/* Si estamos en multUna y k aún no se aplicó, mostrar eq1 con preview */}
           {paso === 'multUna' ? (
-            <>
+            <SistemaConSigno>
               <EcuacionConKPreview eq={sistema.eq1} kInput={k1Input} />
               <Ecuacion eq={sistema.eq2} scale="md" />
-            </>
+            </SistemaConSigno>
           ) : paso === 'multDos' ? (
-            <>
+            <SistemaConSigno>
               <EcuacionConKPreview eq={sistema.eq1} kInput={k1Input} kLabel="k₁" />
               <EcuacionConKPreview eq={sistema.eq2} kInput={k2Input} kLabel="k₂" />
-            </>
+            </SistemaConSigno>
           ) : (
             <>
-              <div className={`transition-transform ${cannonAnim ? 'animate-cannon-shake' : ''}`}>
-                <Ecuacion eq={eq1Actual} scale="md" />
-              </div>
-              <div className={`transition-transform ${cannonAnim ? 'animate-cannon-fire' : ''}`}>
-                <Ecuacion eq={eq2Actual} scale="md" />
-              </div>
+              <SistemaConSigno>
+                <div className={`transition-transform ${cannonAnim ? 'animate-cannon-shake' : ''}`}>
+                  <Ecuacion eq={eq1Actual} scale="md" />
+                </div>
+                <div className={`transition-transform ${cannonAnim ? 'animate-cannon-fire' : ''}`}>
+                  <Ecuacion eq={eq2Actual} scale="md" />
+                </div>
+              </SistemaConSigno>
               {eqSuma && (
                 <div className="border-t-2 border-amber-400 pt-2 mt-2 w-full flex justify-center">
                   <Ecuacion eq={eqSuma} highlight scale="md" />
@@ -444,16 +495,19 @@ export default function Eliminacion({ nivel }) {
 
       {paso === 'formaFinal' && (
         <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 mb-4">
-          <div className="text-center text-amber-900 font-bold mb-2">
-            {t.sistemas.calculaOtra}{' '}
-            <span className="font-mono">{variableQueFalta()}</span>
+          <div className="text-center text-amber-900 mb-3 text-base md:text-lg">
+            {t.sistemas.yaSabesPrefix}{' '}
+            <strong className="font-mono">
+              {variableEnSuma}={primerValor && fracStr(primerValor)}
+            </strong>
+            {t.sistemas.reemplacemosLa}{' '}
+            <strong className="font-mono">{variableEnSuma}</strong>{' '}
+            {t.sistemas.porValor}{' '}
+            <strong className="font-mono">{primerValor && fracStr(primerValor)}</strong>{' '}
+            {t.sistemas.enLaEcuacion}
           </div>
-          <div className="text-center text-amber-700 text-sm mb-3">
-            {t.sistemas.recordatorioReemplaza}{' '}
-            <span className="font-mono inline-flex align-middle">
-              <TokenList tokens={ecuacionTokens(sistema.eq1)} scale={0.6} />
-            </span>{' '}
-            ({variableEnSuma} = <strong>{primerValor && fracStr(primerValor)}</strong>)
+          <div className="my-4">
+            <TokensGrandes tokens={ecuacionTokens(sistema.eq1)} scale="lg" highlight />
           </div>
           <div className="text-center text-amber-700 text-sm mb-3">
             {variableQueFalta() === 'X' ? t.sistemas.ingresaFormaX : t.sistemas.ingresaFormaY}
@@ -463,7 +517,7 @@ export default function Eliminacion({ nivel }) {
             <span>·{variableQueFalta()} +</span>
             <FracInput value={finalBInput} onChange={setFinalBInput} placeholder="b" />
             <span>=</span>
-            <FracInput value={finalCInput} onChange={setFinalCInput} placeholder="c" />
+            <FracInput value={finalCInput} onChange={setFinalCInput} placeholder="c" onSubmit={chequearFormaFinal} />
           </div>
           <div className="text-center mt-4">
             <button

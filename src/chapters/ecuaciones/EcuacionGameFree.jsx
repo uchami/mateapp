@@ -45,6 +45,9 @@ export default function EcuacionGameFree({ generator, title, tutorialSlides }) {
   const [opType, setOpType] = useState(null)
   const [numStr, setNumStr] = useState('')   // numerador (acepta negativos)
   const [denStr, setDenStr] = useState('')   // denominador (opcional, ≥ 1)
+  const [fracMode, setFracMode] = useState(false) // toggle "+ fracción"
+  const numRef = useRef(null)
+  const denRef = useRef(null)
 
   const animTimers = useRef([])
 
@@ -56,7 +59,7 @@ export default function EcuacionGameFree({ generator, title, tutorialSlides }) {
   // - con denominador > 1 → fracción Frac(num, den)
   // - numerador 0 no es válido (op identidad, no haría nada)
   const parsedNum = parseInt(numStr, 10)
-  const parsedDen = denStr === '' ? 1 : parseInt(denStr, 10)
+  const parsedDen = !fracMode || denStr === '' ? 1 : parseInt(denStr, 10)
   const previewValid =
     opType &&
     Number.isFinite(parsedNum) &&
@@ -80,6 +83,21 @@ export default function EcuacionGameFree({ generator, title, tutorialSlides }) {
     setOpType(null)
     setNumStr('')
     setDenStr('')
+    setFracMode(false)
+  }
+
+  function pickOp(type) {
+    setOpType(type)
+    setTimeout(() => numRef.current?.focus(), 0)
+  }
+
+  function toggleFrac() {
+    setFracMode((m) => {
+      const next = !m
+      if (!next) setDenStr('')
+      else setTimeout(() => denRef.current?.focus(), 0)
+      return next
+    })
   }
 
   function applyNow() {
@@ -198,7 +216,7 @@ export default function EcuacionGameFree({ generator, title, tutorialSlides }) {
                   <button
                     key={o.type}
                     disabled={locked}
-                    onClick={() => setOpType(o.type)}
+                    onClick={() => pickOp(o.type)}
                     className={`px-4 py-2 rounded-xl font-mono font-bold text-2xl border-2 transition-all
                       ${
                         opType === o.type
@@ -218,6 +236,11 @@ export default function EcuacionGameFree({ generator, title, tutorialSlides }) {
                 onNumChange={setNumStr}
                 onDenChange={setDenStr}
                 disabled={locked}
+                fracMode={fracMode}
+                onToggleFrac={toggleFrac}
+                onSubmit={applyNow}
+                numRef={numRef}
+                denRef={denRef}
               />
             </div>
             <div className="flex gap-3 mt-2">
@@ -262,49 +285,67 @@ export default function EcuacionGameFree({ generator, title, tutorialSlides }) {
 }
 
 // Input compuesto: numerador (acepta negativos) + denominador opcional apilado
-// como una fracción visual. Si el denominador queda vacío, el valor es entero.
-function NumberFracInput({ numStr, denStr, onNumChange, onDenChange, disabled }) {
+// como una fracción visual. El denominador sólo aparece si se activa el toggle.
+function NumberFracInput({ numStr, denStr, onNumChange, onDenChange, disabled, fracMode, onToggleFrac, onSubmit, numRef, denRef }) {
   const { t } = useLang()
-  const hasDen = denStr !== ''
   // Sólo permitimos signo en el numerador, dígitos en el denominador.
   const cleanNum = (s) => s.replace(/[^0-9-]/g, '').replace(/(?!^)-/g, '')
   const cleanDen = (s) => s.replace(/[^0-9]/g, '')
+  function onKeyDownAny(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      onSubmit && onSubmit()
+    }
+  }
   return (
     <div className="flex flex-col items-center">
       <div
         className={`flex flex-col items-center w-24 px-2 py-1 rounded-xl border-2 ${
-          hasDen ? 'border-indigo-300 bg-indigo-50' : 'border-gray-300 bg-white'
+          fracMode ? 'border-indigo-300 bg-indigo-50' : 'border-gray-300 bg-white'
         } ${disabled ? 'opacity-50' : ''}`}
       >
         <input
+          ref={numRef}
           type="text"
           inputMode="numeric"
           value={numStr}
           disabled={disabled}
           onChange={(e) => onNumChange(cleanNum(e.target.value))}
+          onKeyDown={onKeyDownAny}
           placeholder={t.ecuaciones.numPlaceholder}
           aria-label={t.ecuaciones.numerator}
           className="w-full font-mono font-bold text-2xl bg-transparent focus:outline-none text-center"
         />
-        <div
-          className={`w-full ${
-            hasDen ? 'border-t-2 border-current' : 'border-t border-dashed border-gray-300'
-          } my-1`}
-        />
-        <input
-          type="text"
-          inputMode="numeric"
-          value={denStr}
-          disabled={disabled}
-          onChange={(e) => onDenChange(cleanDen(e.target.value))}
-          placeholder={t.ecuaciones.denPlaceholder}
-          aria-label={t.ecuaciones.denominator}
-          className="w-full font-mono font-bold text-xl bg-transparent focus:outline-none text-center text-gray-600"
-        />
+        {fracMode && (
+          <>
+            <div className="w-full border-t-2 border-current my-1" />
+            <input
+              ref={denRef}
+              type="text"
+              inputMode="numeric"
+              value={denStr}
+              disabled={disabled}
+              onChange={(e) => onDenChange(cleanDen(e.target.value))}
+              onKeyDown={onKeyDownAny}
+              placeholder={t.ecuaciones.denPlaceholder}
+              aria-label={t.ecuaciones.denominator}
+              className="w-full font-mono font-bold text-xl bg-transparent focus:outline-none text-center text-gray-600"
+            />
+          </>
+        )}
       </div>
-      <div className="text-[10px] text-gray-400 mt-1 text-center leading-tight">
-        {t.ecuaciones.fracHint}
-      </div>
+      <button
+        type="button"
+        onClick={onToggleFrac}
+        disabled={disabled}
+        className={`mt-1 text-[11px] px-2 py-0.5 rounded-md border font-medium transition-colors
+          ${fracMode
+            ? 'border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
+            : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'}
+          disabled:opacity-40 disabled:cursor-not-allowed`}
+      >
+        {fracMode ? t.ecuaciones.removeFraccion : t.ecuaciones.addFraccion}
+      </button>
     </div>
   )
 }

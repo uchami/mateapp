@@ -602,20 +602,27 @@ export default function Sustitucion({ nivel }) {
       {/* PASO: calcular la otra variable */}
       {paso === 'calcularY' && despejada && (
         <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 mb-4">
-          <div className="text-center text-amber-900 font-bold mb-2">
-            {t.sistemas.calculaOtra}{' '}
-            <span className="font-mono">{despejada.variable}</span>
+          <div className="text-center text-amber-900 mb-3 text-base md:text-lg">
+            {t.sistemas.yaSabesPrefix}{' '}
+            <strong className="font-mono">
+              {variableResultante()}={primerValor && fracStr(primerValor)}
+            </strong>
+            {t.sistemas.reemplacemosLa}{' '}
+            <strong className="font-mono">{variableResultante()}</strong>{' '}
+            {t.sistemas.porValor}{' '}
+            <strong className="font-mono">{primerValor && fracStr(primerValor)}</strong>{' '}
+            {t.sistemas.enLaEcuacion}
           </div>
-          <div className="text-center text-amber-700 text-sm mb-3">
-            {t.sistemas.recordatorioSust}{' '}
-            <span className="font-mono inline-flex align-middle">
-              <TokenList tokens={despejadaTokens(despejada.variable, despejada.m, despejada.n)} scale={0.6} />
-            </span>{' '}
-            ({variableResultante()} = <strong>{primerValor && fracStr(primerValor)}</strong>)
+          <div className="my-4">
+            <TokensGrandes
+              tokens={despejadaTokens(despejada.variable, despejada.m, despejada.n)}
+              scale="lg"
+              highlight
+            />
           </div>
           <div className="flex items-center justify-center gap-2 text-2xl font-mono font-bold text-amber-900">
             <span>{despejada.variable} =</span>
-            <FracInput value={yInput} onChange={setYInput} placeholder="?" autoFocus />
+            <FracInput value={yInput} onChange={setYInput} placeholder="?" autoFocus onSubmit={chequearY} />
           </div>
           <div className="text-center mt-4">
             <button
